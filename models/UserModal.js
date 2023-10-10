@@ -22,6 +22,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: 'customer'
     },
+    avatar: {
+        type: String,
+        default: 'https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png'
+    },
 });
 
 const UserModal = mongoose.model('users', UserSchema);

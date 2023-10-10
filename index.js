@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/userRoutes'); // Assuming correct path
+const productRoutes = require("./routes/productsRoutes"); 
+
 require('dotenv').config();
 const app = express();
 app.use(express.json());
@@ -24,6 +26,8 @@ mongoose.connect(mongodbURI, { useNewUrlParser: true, useUnifiedTopology: true }
         console.error('Error connecting to MongoDB:', error);
     });
 app.use('/user', userRoutes);
+app.use('/product', productRoutes);
+
 app.listen(PORT, () => {
     console.log('Server started at port:', PORT);
 });
