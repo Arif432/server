@@ -4,6 +4,8 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/userRoutes'); // Assuming correct path
 const productRoutes = require("./routes/productsRoutes"); 
+const cartRoutes = require("./routes/CartRoute");
+const orderRoutes = require("./routes/OrderRoute");
 
 require('dotenv').config();
 const app = express();
@@ -27,6 +29,8 @@ mongoose.connect(mongodbURI, { useNewUrlParser: true, useUnifiedTopology: true }
     });
 app.use('/user', userRoutes);
 app.use('/product', productRoutes);
+app.use('/cart', cartRoutes);
+app.use('/order', orderRoutes);
 
 app.listen(PORT, () => {
     console.log('Server started at port:', PORT);
