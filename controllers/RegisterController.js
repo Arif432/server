@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const transporter = require('../utils/nodemailerConfig');
 const UserModal = require('../models/UserModal')
+const CartModel = require('../models/CartModel')
+const { sendMail } = require('../utils/nodemailerConfig')
 
 const registerUser = async (req, res) => {
     const { name, email, password, avatar } = req.body; // Extracting avatar from the request body
@@ -10,6 +13,7 @@ const registerUser = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await UserModal.create({ name, email, password: hashedPassword, avatar }); // Including avatar in user creation
+        sendMail(email, 'Welcome to the Bookstore', 'Welcome to the Bookstore', '<h3>Welcome to the Bookstore</h3>')
         res.status(201).json({ user: user._id });
     } catch (error) {
         if (error.code === 11000) {
@@ -81,24 +85,31 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
     const { id } = req.params;
     try {
-        const deletedUser = await UserModal.findByIdAndDelete(id);
-        if (!deletedUser) {
+        const user = await UserModal.findById(id);
+        if (!user) {
             return res.status(404).json({ error: 'User not found during deletion' });
         }
         if (req.user._id.toString() !== id) {
             return res.status(403).json({ error: 'You are not authorized to delete this user' });
         }
-        res.status(200).json({ msg: 'User deleted successfully', user: deletedUser });
+        await CartModel.findOneAndDelete({ user: id });
+        const deletedUser = await UserModal.findByIdAndDelete(id);
+        if (!deletedUser) {
+            return res.status(404).json({ error: 'User not found during deletion' });
+        }
+        res.status(200).json({ msg: 'User and associated cart deleted successfully', user: deletedUser });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
+
 
 module.exports = {
     registerUser,
     loginUser,
     verifyUser,
     updateUser,
-    deleteUser
+    deleteUser,
 };
 
