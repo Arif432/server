@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const transporter = require('../utils/nodemailerConfig');
 const UserModal = require('../models/UserModal')
 const CartModel = require('../models/CartModel')
 const { sendMail } = require('../utils/nodemailerConfig')
@@ -30,8 +29,6 @@ const loginUser = async (req, res) => {
         if (user) {
             const isPasswordCorrect = await bcrypt.compare(password, user.password);
             if (isPasswordCorrect) {
-                // console.log("user", user)
-                // const token = jwt.sign({ _id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: 3600 });
                 const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: 3600 });
                 res.cookie('token', token);
                 res.json({ role: user.role, token });
@@ -103,13 +100,58 @@ const deleteUser = async (req, res) => {
     }
 };
 
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    try {
+      const user = await UserModal.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      console.log('User:', user._id);
+      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      console.log('Token:', token);
+      const link = `http://localhost:5000/user/reset-password/${user._id}/${token}`;
+      sendMail(
+        email,
+        'Reset Password',
+        'Reset Password',
+        `Please click on the given link to reset your password <a href="${link}">Change Password</a>`
+      );
+      res.status(200).json({ msg: 'Password reset link sent to email',link:link });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+
+  const resetPassword = async (req, res) => {
+    console.log('Params:', req.params);
+    const { userId, token } = req.params;
+    const { password } = req.body;
+    console.log('Request body:', req.body);
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (decoded._id !== userId) {
+        return res.status(400).json({ error: 'Invalid token' });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await UserModal.findByIdAndUpdate(userId, { password: hashedPassword });
+      res.status(200).json({ msg: 'Password updated successfully' });
+    } catch (error) {
+        console.log('Error:', error);   
+      res.status(400).json({error:error });
+    }
+};
 
 
+  
 module.exports = {
     registerUser,
     loginUser,
     verifyUser,
     updateUser,
     deleteUser,
+    forgotPassword,
+    resetPassword
 };
 
