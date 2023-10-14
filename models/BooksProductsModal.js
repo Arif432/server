@@ -20,6 +20,9 @@ const BooksProductsSchema = new mongoose.Schema({
     language: {
         type: String,
     },
+    quantity: {
+        type: Number,
+    },
     isbn: {
         type: String,
         unique: true,

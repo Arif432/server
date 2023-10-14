@@ -1,15 +1,38 @@
 const OrderModal = require('../models/OrderModel');
+const ProductModal = require('../models/BooksProductsModal')
 
 const addOrder = async (req, res) => {
     const { products } = req.body;
-    const user = req.user._id;
+    const user = req.user;
+    let totalAmount = 0;  // Initialize the total amount for the order
     try {
-        const order = await OrderModal.create({ user: user, products: products });
-        res.status(201).json({ order: order });
+        const orderedProducts = [];
+        for (let i = 0; i < products.length; i++) {
+            const product = products[i].product;
+            const quantity = products[i].quantity;
+            const orderedProduct = await ProductModal.findById(product);
+            if (!orderedProduct) {
+                return res.status(400).json({ error: `Product not found for product ID: ${product}` });
+            }
+            if (quantity <= 0) {
+                return res.status(400).json({ error: `Invalid quantity for product ID: ${product}` });
+            }
+            if (quantity > orderedProduct.quantity) {
+                return res.status(400).json({ error: `Product quantity exceeds stock for product ID: ${product}` });
+            }
+            const productTotalAmount = orderedProduct.price * quantity;
+            totalAmount += productTotalAmount;  // Update the total amount for the order
+            orderedProduct.quantity -= quantity;
+            await orderedProduct.save();
+            orderedProducts.push({ product, quantity, totalAmount: productTotalAmount });
+        }
+        const order = await OrderModal.create({ user, products: orderedProducts, totalAmount });
+        res.status(201).json({ order });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 }
+
 const getOrders = async (req, res) => {
     const user = req.user._id;
     try {
@@ -19,6 +42,7 @@ const getOrders = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
 const deleteOrder = async (req, res) => {
     const { id } = req.params;
     const user = req.user._id;

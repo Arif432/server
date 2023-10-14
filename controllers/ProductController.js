@@ -1,12 +1,12 @@
 const ProductModal = require('../models/BooksProductsModal')
 const addProduct = async (req, res) => {
-    const { title, author, description, price, isbn } = req.body;  // Include isbn here
+    const { title, author, description, price, isbn,quantity } = req.body;  // Include isbn here
     const uploadedBy = req.user._id;
     try {
         if (req.user.role !== 'admin') {
             return res.status(403).json({ error: 'You are customer please make seller account' });
         }
-        const product = await ProductModal.create({ title, author, description, price, uploadedBy, isbn });  // Include isbn here
+        const product = await ProductModal.create({ title, author, description, price, uploadedBy, isbn,quantity });  // Include isbn here
         res.status(201).json({ uploadedBy: product.uploadedBy, product: product._id });
     } catch (error) {
         console.log(error.message);
