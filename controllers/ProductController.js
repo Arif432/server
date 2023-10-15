@@ -61,7 +61,13 @@ const getProduct = async (req, res) => {
 }
 
 const getAllProducts = async (req, res) => {
-    const { minPrice, maxPrice, ...search } = req.query; // Extract minPrice and maxPrice for filtering
+    let { minPrice, maxPrice, ...search } = req.query; // Extract minPrice and maxPrice for filtering
+
+    // If minPrice is 0, set it to undefined to get all products
+    if (minPrice !== undefined && parseFloat(minPrice) === 0) {
+        minPrice = undefined;
+    }
+
     const priceFilter = {};
     if (minPrice !== undefined) {
         priceFilter.$gte = parseFloat(minPrice);
@@ -69,13 +75,15 @@ const getAllProducts = async (req, res) => {
     if (maxPrice !== undefined) {
         priceFilter.$lte = parseFloat(maxPrice);
     }
+    
     try {
-        const products = await ProductModal.find({ ...search, price: priceFilter });
+        const products = await ProductModal.find({ ...search, ...(minPrice || maxPrice ? { price: priceFilter } : {}) });
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 const getAllProductsByAdmin = async (req, res) => {
     const { adminId } = req.params;
