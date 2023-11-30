@@ -143,8 +143,20 @@ const forgotPassword = async (req, res) => {
     }
 };
 
+const getUserInfo = async (req, res) => {
+    const userId = req.user._id; // Assuming you have a middleware that verifies the user and adds user information to the request object
+    console.log('User ID:', userId);
+    try {
+        const user = await UserModal.findById(userId).select('-password'); // Exclude the password from the response
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        res.status(200).json({ user });
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching user information.' });
+    }
+};
 
-  
 module.exports = {
     registerUser,
     loginUser,
@@ -152,6 +164,7 @@ module.exports = {
     updateUser,
     deleteUser,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    getUserInfo
 };
 

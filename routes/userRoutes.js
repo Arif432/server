@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {registerUser,loginUser ,verifyUser,updateUser,deleteUser,forgotPassword,resetPassword} = require('../controllers/RegisterController');
+const {registerUser,loginUser ,verifyUser,updateUser,deleteUser,forgotPassword,resetPassword,getUserInfo} = require('../controllers/RegisterController');
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/logout', (req, res) => {
@@ -10,6 +10,7 @@ router.get('/logout', (req, res) => {
 router.get('/admin',verifyUser, (req, res) => {
     res.status(200).json('Success');
 });
+router.get('/getUserInfo', verifyUser, getUserInfo);
 router.put('/updateUser/:id',verifyUser, updateUser);
 router.delete('/deleteUser/:id',verifyUser, deleteUser);
 router.post('/forgot-password',forgotPassword);
