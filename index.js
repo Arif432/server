@@ -6,6 +6,8 @@ const userRoutes = require('./routes/userRoutes'); // Assuming correct path
 const productRoutes = require("./routes/productsRoutes"); 
 const cartRoutes = require("./routes/CartRoute");
 const orderRoutes = require("./routes/OrderRoute");
+const genreRoutes = require('./routes/GenresRoutes')
+const authorRoutes = require('./routes/AuthorsRoute')
 
 require('dotenv').config();
 const app = express();
@@ -31,6 +33,8 @@ app.use('/user', userRoutes);
 app.use('/product', productRoutes);
 app.use('/cart', cartRoutes);
 app.use('/order', orderRoutes);
+app.use('/genres',genreRoutes)
+app.use('/authors',authorRoutes)
 
 app.listen(PORT, () => {
     console.log('Server started at port:', PORT);

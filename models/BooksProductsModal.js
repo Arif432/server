@@ -5,7 +5,8 @@ const BooksProductsSchema = new mongoose.Schema({
         type: String,
     },
     author: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'authors'  // Reference to the 'authors' collection
     },
     description: {
         type: String,
@@ -15,7 +16,7 @@ const BooksProductsSchema = new mongoose.Schema({
     },
     averageRating: {
         type: Number,
-        default: 0  // Default to 0 if no ratings yet
+        default: 0
     },
     language: {
         type: String,
@@ -33,12 +34,17 @@ const BooksProductsSchema = new mongoose.Schema({
         rating: Number
     }],
     images: [{
-        type: String  // Assuming you'll store image URLs
+        type: String
     }],
     uploadedBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'users'  // Reference to the 'users' collection (UserModal)
+        ref: 'users'
+    },
+    genre: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'genres'  // Reference to the 'genres' collection
     }
 });
+
 const BooksProductsModal = mongoose.model('products', BooksProductsSchema);
 module.exports = BooksProductsModal;

@@ -12,7 +12,7 @@ const registerUser = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await UserModal.create({ name, email, password: hashedPassword, avatar }); // Including avatar in user creation
-        sendMail(email, 'Welcome to the Bookstore', 'Welcome to the Bookstore', '<h3>Welcome to the Bookstore</h3>')
+        sendMail(email, `Welcome ${name} to the Bookstore`, 'Welcome to the Bookstore', `<h3>Welcome to the Bookstore ${name}</h3>`)
         res.status(201).json({ user: user._id });
     } catch (error) {
         if (error.code === 11000) {

@@ -1,18 +1,43 @@
 const ProductModal = require('../models/BooksProductsModal')
+const AuthorsModel = require('../models/AuthorModel')
+
 const addProduct = async (req, res) => {
-    const { title, author, description, price, isbn,quantity } = req.body;  // Include isbn here
+    const { title, author, description, price, isbn, quantity, genre } = req.body;
     const uploadedBy = req.user._id;
     try {
         if (req.user.role !== 'admin') {
-            return res.status(403).json({ error: 'You are customer please make seller account' });
+            return res.status(403).json({ error: 'You are a customer. Please create a seller account.' });
         }
-        const product = await ProductModal.create({ title, author, description, price, uploadedBy, isbn,quantity });  // Include isbn here
+        let authorDoc = await AuthorsModel.findById(author);
+        if (!authorDoc) {
+            authorDoc = await AuthorsModel.create({ _id: author, name: author });
+        }
+
+        const genreExists = await GenresModel.findById(genre);
+
+        if (!genreExists) {
+            return res.status(404).json({ error: 'Genre not found.' });
+        }
+
+        const product = await ProductModal.create({
+            title,
+            author: authorDoc._id, // Use the created or existing author's ID
+            description,
+            price,
+            uploadedBy,
+            isbn,
+            quantity,
+            genre,
+        });
+
         res.status(201).json({ uploadedBy: product.uploadedBy, product: product._id });
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ error: "product with given isbn already exists" });
+        res.status(500).json({ error: 'An error occurred while adding the product.' });
     }
 };
+
+
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
     try {
@@ -32,22 +57,43 @@ const deleteProduct = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
 const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { title, author, description, price, isbn } = req.body;
-    console.log(req.user)
+    const { title, author, description, price, isbn, genre } = req.body;
+
     try {
         const product = await ProductModal.findById(id);
+
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
+
         if (req.user.role !== 'admin' || req.user._id.toString() !== product.uploadedBy.toString()) {
             return res.status(403).json({ error: 'You are not authorized to update this product' });
         }
-        const updatedProduct = await ProductModal.findByIdAndUpdate(id, { title, author, description, price, isbn }, { new: true });
+
+        // Check if the provided author and genre IDs exist in the respective collections
+        const authorExists = await AuthorsModel.findById(author);
+        const genreExists = await GenresModel.findById(genre);
+
+        if (!authorExists || !genreExists) {
+            return res.status(404).json({ error: 'Author or genre not found.' });
+        }
+
+        const updatedProduct = await ProductModal.findByIdAndUpdate(id, {
+            title,
+            author,
+            description,
+            price,
+            isbn,
+            genre,
+        }, { new: true });
+
         res.status(200).json({ msg: 'Product updated successfully', product: updatedProduct });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'An error occurred while updating the product.' });
     }
 };
 const getProduct = async (req, res) => {
