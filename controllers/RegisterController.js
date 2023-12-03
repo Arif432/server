@@ -11,8 +11,8 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ error: 'Password should be at least 6 characters' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
+        await sendMail(email, `Welcome ${name} to the Bookstore`, 'Welcome to the Bookstore', `<h3>Welcome to the Bookstore ${name}</h3>`)
         const user = await UserModal.create({ name, email, password: hashedPassword, avatar }); // Including avatar in user creation
-        sendMail(email, `Welcome ${name} to the Bookstore`, 'Welcome to the Bookstore', `<h3>Welcome to the Bookstore ${name}</h3>`)
         res.status(201).json({ user: user._id });
     } catch (error) {
         if (error.code === 11000) {
