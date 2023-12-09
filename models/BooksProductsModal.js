@@ -4,7 +4,7 @@ const BooksProductsSchema = new mongoose.Schema({
     title: {
         type: String,
     },
-    author: {
+    authorName: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'authors'  // Reference to the 'authors' collection
     },
@@ -40,7 +40,7 @@ const BooksProductsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
     },
-    genre: {
+    genreName: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'genres'  // Reference to the 'genres' collection
     }

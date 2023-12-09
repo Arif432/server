@@ -1,33 +1,32 @@
 const ProductModal = require('../models/BooksProductsModal')
 const AuthorsModel = require('../models/AuthorModel')
+const GenreModel = require('../models/GenreModel')
 
 const addProduct = async (req, res) => {
-    const { title, author, description, price, isbn, quantity, genre } = req.body;
+    const { title, authorName, description, price, isbn, quantity, genreName } = req.body;
     const uploadedBy = req.user._id;
+    const genreExists = await GenreModel.findOne({ genreName });
+
     try {
         if (req.user.role !== 'admin') {
             return res.status(403).json({ error: 'You are a customer. Please create a seller account.' });
         }
-        let authorDoc = await AuthorsModel.findById(author);
+        let authorDoc = await AuthorsModel.findOne({ authorName });
         if (!authorDoc) {
-            authorDoc = await AuthorsModel.create({ _id: author, name: author });
+            authorDoc = await AuthorsModel.create({ authorName });
         }
-
-        const genreExists = await GenresModel.findById(genre);
-
         if (!genreExists) {
             return res.status(404).json({ error: 'Genre not found.' });
         }
-
         const product = await ProductModal.create({
             title,
-            author: authorDoc._id, // Use the created or existing author's ID
+            authorName: authorDoc._id,
             description,
             price,
             uploadedBy,
             isbn,
             quantity,
-            genre,
+            genreName: genreExists._id,
         });
 
         res.status(201).json({ uploadedBy: product.uploadedBy, product: product._id });

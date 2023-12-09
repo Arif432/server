@@ -14,6 +14,7 @@ router.get('/getProduct/:id', getProduct);
 router.get('/getAllProduct', getAllProducts);
 router.get('/getAllProducts/:adminId',verifyUser, getAllProductsByAdmin);
 router.post('/addProduct',verifyUser, addProduct);
+
 router.put('/updateProduct/:id',verifyUser, updateProduct);
 router.delete('/deleteProduct/:id',verifyUser, deleteProduct);
 module.exports = router;
