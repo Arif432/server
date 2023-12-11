@@ -106,27 +106,16 @@ const getProduct = async (req, res) => {
 }
 
 const getAllProducts = async (req, res) => {
-    let { minPrice, maxPrice, ...search } = req.query; // Extract minPrice and maxPrice for filtering
+    const { minPrice, maxPrice, page = 1, limit = 8, ...search } = req.query;
+    const skip = (page - 1) * limit;
+    const totalProducts = await ProductModal.countDocuments({ ...search, ...(minPrice || maxPrice ? { price: priceFilter } : {}) });
+    const totalPages = Math.ceil(totalProducts / limit);
+    const products = await ProductModal
+        .find({ ...search, ...(minPrice || maxPrice ? { price: priceFilter } : {}) })
+        .skip(parseInt(skip))
+        .limit(parseInt(limit));
 
-    // If minPrice is 0, set it to undefined to get all products
-    if (minPrice !== undefined && parseFloat(minPrice) === 0) {
-        minPrice = undefined;
-    }
-
-    const priceFilter = {};
-    if (minPrice !== undefined) {
-        priceFilter.$gte = parseFloat(minPrice);
-    }
-    if (maxPrice !== undefined) {
-        priceFilter.$lte = parseFloat(maxPrice);
-    }
-    
-    try {
-        const products = await ProductModal.find({ ...search, ...(minPrice || maxPrice ? { price: priceFilter } : {}) });
-        res.status(200).json(products);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    res.status(200).json({ products, totalPages });
 };
 
 
