@@ -110,20 +110,22 @@ const priceFilter = (minPrice, maxPrice) => {
 };
 
 const getAllProducts = async (req, res) => {
-    const { minPrice, maxPrice, page = 1, limit = 8, title } = req.query;
+    const { minPrice, maxPrice, page = 1, limit = 8, title, authorId, genreId } = req.query;
     const skip = (page - 1) * limit;
-
-    // Create a filter object for non-empty parameters
     const filter = {};
 
     if (minPrice >= 0 && maxPrice > 0) {
         filter.price = priceFilter(minPrice, maxPrice);
     }
-
-    // Add title filter if not undefined or empty
     if (title !== undefined && title !== '') {
-        // Use a regular expression for a case-insensitive substring match
         filter.title = { $regex: new RegExp(title, 'i') };
+    }
+    if (authorId !== undefined && authorId !== '') {
+        filter.authorName = authorId;
+    }
+    if (genreId !== undefined && genreId !== '') {
+        // Use the property name directly in the filter
+        filter.genreName = genreId;
     }
 
     const totalProducts = await ProductModal.countDocuments(filter);
@@ -132,7 +134,6 @@ const getAllProducts = async (req, res) => {
         .find(filter)
         .skip(parseInt(skip))
         .limit(parseInt(limit));
-
     res.status(200).json({ products, totalPages });
 };
 
