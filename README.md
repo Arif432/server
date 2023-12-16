@@ -55,7 +55,7 @@ The website is designed to be accessible and user-friendly across various device
    git clone https://github.com/your-username/your-repository.git
    cd your-repository
    npm install
-   npm run dev
+   nodemon start
 
 # Future Enhancements
 Implement a payment gateway for secure and seamless online transactions.
