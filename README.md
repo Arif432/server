@@ -59,6 +59,6 @@ The website is designed to be accessible and user-friendly across various device
 
 # Future Enhancements
 Implement a payment gateway for secure and seamless online transactions.
-Enhance the user interface with additional interactive features and animations.
+
 Incorporate user reviews and ratings for books.
 
