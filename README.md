@@ -52,7 +52,7 @@ The website is designed to be accessible and user-friendly across various device
 
 1. Clone the repository:
 
-   git clone https://github.com/your-username/your-repository.git
+   git clone https://github.com/Arif432/server
    cd your-repository
    npm install
    nodemon start
